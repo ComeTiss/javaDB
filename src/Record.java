@@ -26,7 +26,13 @@ public class Record {
     }
 
     void update(int index, Object value) {
-        this.values.set (index, value);
+        if (value instanceof String) {
+            String CleanValue = ((String) value).replaceAll ("\\s", "");
+            this.values.set (index, CleanValue);
+        }
+        else {
+            this.values.set (index, value);
+        }
     }
 
     Object select(int index) {

@@ -11,6 +11,7 @@ public class Data {
     private ArrayList<Record> data = new ArrayList<> ();
     private ArrayList<String> fields = new ArrayList<> ();
     private ArrayList<String> types = new ArrayList<> ();
+    private String primaryKey = null;
 
     ArrayList<Record> getData () {
         return this.data;
@@ -22,6 +23,10 @@ public class Data {
 
     ArrayList<String> getTypes() {
         return this.types;
+    }
+
+    String getKey () {
+        return this.primaryKey;
     }
 
 
@@ -40,27 +45,34 @@ public class Data {
             int count = 0;
 
             while ((line = bufferedReader.readLine()) != null) {
-                Object[] words = line.split (",");
+                Object[] objects = line.split (",");
 
-                if (count > 0) {
-                    Record row = new Record (words.length);
-                    this.data.add (row);
+                if (! BlankLine (objects)) {
+                    if (count > 2) {
+                        Record row = new Record (objects.length);
+                        this.data.add (row);
+                    }
+
+                    // read a line word by word
+                    for (int i = 0; i < objects.length; i++) {
+
+                        if (count == 0) {
+                            this.fields.add (removeSpaces (objects[i].toString ()));
+                        }
+                        else if (count == 1) {
+                            this.types.add (removeSpaces (objects[i].toString ()));
+                        }
+                        else if (count == 2) {
+                            this.primaryKey = removeSpaces (objects[i].toString ());
+                        }
+                        else {
+                            if ( CorrectType (this.types.get (i), objects[i].toString ()) ) {
+                                this.data.get (count-3).update(i, objects[i]);
+                            }
+                        }
+                    }
+                    count++;
                 }
-
-                // read a line word by word
-                for (int i = 0; i < words.length; i++) {
-
-                    if (count == 0) {
-                        this.fields.add (words[i].toString ());
-                    }
-                    else if (count == 1) {
-                        this.types.add (removeSpaces (words[i].toString ()));
-                    }
-                    else {
-                        this.data.get (count-2).update(i, words[i]);
-                    }
-                }
-                count++;
             }
             bufferedReader.close ();
         }
@@ -89,6 +101,12 @@ public class Data {
             if (newTypes != null) {
                 writer.println (newTypes);
             }
+            if (fields.KeyDefined ()) {
+                writer.println (fields.getKey ());
+            }
+            else {
+                writer.println ("UndefinedKey");
+            }
 
             for (int i=0; i<rows.size(); i++) {
                 String newRow = convert (rows.get(i).get());
@@ -101,6 +119,14 @@ public class Data {
         catch (IOException e) {
             System.out.println ("Unable to write to file ");
         }
+    }
+
+
+    Boolean BlankLine (Object[] line) {
+        if (line.length == 1 && line[0].equals ("")) {
+            return true;
+        }
+        return false;
     }
 
     private Boolean findComma (Object word) {
@@ -118,6 +144,12 @@ public class Data {
 
     private String removeSpaces (String word) {
         return word.replaceAll("\\s+", "");
+    }
+
+    Object ReformatObj (String type, Object value) {
+        if (type.equals ("Integer")) return Integer.parseInt (value.toString ());
+        if (type.equals ("Boolean")) return Boolean.parseBoolean (value.toString ());
+        else return value.toString ();
     }
 
     ArrayList<Object> convertToObj (ArrayList<String> strings) {
@@ -163,6 +195,33 @@ public class Data {
     }
 
 
+    private String findType (String input) {
+        String value = removeSpaces (input);
+        if (value.equals ("true") || value.equals ("false")) return "BooleanOrString";
+        if (value.matches ("[0-9]+")) return "Integer";
+        if (value.matches ("[a-zA-Z0-9]+")) return "String";
+        return "Unknown";
+    }
+
+    Boolean CorrectType (String type, String value) {
+
+        if (type.equals ("String")) {
+            if (findType (value).equals ("BooleanOrString") ||
+                    findType (value).equals ("String")) {
+                return true;
+            }
+        }
+        if (type.equals ("Integer") && findType (value).equals ("Integer")) {
+            return true;
+        }
+        if (type.equals ("Boolean") && findType (value).equals ("BooleanOrString")) {
+            return true;
+        }
+        return false;
+
+    }
+
+
     /* ------------- TESTING -------------- */
 
     public static void main(String[] args) {
@@ -173,6 +232,9 @@ public class Data {
     private void run() {
         /* Tested read & write methods by visual check */
         testIsValid();
+        testFindType ();
+        testCorrectType();
+        testReformatObject();
         testFindComma();
         testConvert();
         testRemoveSpace();
@@ -189,6 +251,31 @@ public class Data {
         test.data.remove (0);
         test.data.add (new Record(2));
         assert (test.isValid ());
+    }
+
+    private void testFindType () {
+        assert (findType ("hello").equals ("String"));
+        assert (findType ("1234").equals ("Integer"));
+        assert (findType ("false").equals ("BooleanOrString"));
+        assert (findType ("true").equals ("BooleanOrString"));
+        assert (findType ("1234,123").equals ("Unknown"));
+        assert (findType ("8?/EQZfe").equals ("Unknown"));
+    }
+
+    private void testCorrectType () {
+        assert (CorrectType ("String", "Hello"));
+        assert (CorrectType ("Integer", "12345"));
+        assert (CorrectType ("Boolean", "false"));
+        assert (CorrectType ("Boolean", "true"));
+        assert (CorrectType ("String", "true"));
+        assert (CorrectType ("String", "false"));
+    }
+
+    private void testReformatObject () {
+        assert (ReformatObj ("String", "Hello") instanceof String);
+        assert (ReformatObj ("Integer", "123") instanceof Integer);
+        assert (ReformatObj ("Boolean", "true") instanceof Boolean);
+        assert (ReformatObj ("Boolean", "false") instanceof Boolean);
     }
 
     private void testFindComma () {

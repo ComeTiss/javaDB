@@ -96,7 +96,6 @@ public class Table {
         if (!this.fields.exists(field) || keyConstrain (field, value)) {
             return;
         }
-
         if (KeyValueExists (KeyValue) && DataTypeValid (field, value)) {
             int index = this.fields.index(field);
             this.rows.get(RowIndex (KeyValue)).update(index, value);
@@ -241,12 +240,6 @@ public class Table {
         if (type.equals ("Integer") && value instanceof Integer) {
             return true;
         }
-        if (type.equals ("Float") && value instanceof Float) {
-            return true;
-        }
-        if (type.equals ("Double") && value instanceof Double) {
-            return true;
-        }
         if (type.equals ("Boolean") && value instanceof Boolean) {
             return true;
         }
@@ -318,9 +311,10 @@ public class Table {
             this.fields.setFromArray (output.getFields ());
             this.rows = output.getData ();
             this.fields.setTypesFromArray (output.getTypes ());
-
+            if (this.fields.exists (output.getKey ())) {
+                this.fields.setKey (output.getKey ());
+            }
         }
-
         else {
 
             System.out.println ("\nInvalid data format, check table size.");

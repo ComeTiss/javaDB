@@ -48,6 +48,12 @@ public class Database {
         }
     }
 
+    void bind (Table origin, Field originField, Table target, Field targetField) {
+        /*
+
+         */
+    }
+
     void delete (String name) {
         if (TableExists (name)) {
             this.db.remove (index (name));

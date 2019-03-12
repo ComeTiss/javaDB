@@ -43,7 +43,7 @@ Problem: if the index of a certain Record changes for some reason, it will be ha
 > alter function enable to add a new field to an existing table
 A new cell is also initialised on each row
 
-4. Create a Field class
+4. Create a Header class
 ------------------------
 
 > Made sense to gather methods and variables related to fields within it own class
@@ -86,10 +86,54 @@ A new cell is also initialised on each row
 > classic methods to query/add/delete database content
 
 9. Data Type added
+----------------------
+
 a) created Type class
 b) modified Header class with an ArrayList of Types
     + Can't redefine a field type once its been defined
 c) changed Table & Record class to take Objects as parameter instead of Strings
     + methods added to check that data type is correct when creating/updating a cell
     + make sure that all fields have a type to create a record
+
 d) changed Data class so that Data type is also saved in file
+
+e) when reading from a file, checking that values match the specified Type
+
+
+10. Field class added
+-----------------------
+containing Field name , Type, and whether its a primary key or not
+purpose: clean Header class and gather info about a field in one object
+
+
+11. Refine File reading
+-------------------------
+
+> Filter out blank lines
+> remove spaces from tokens read
+>
+
+
+
+11. Foreign Key constrain
+---------------------------
+
+Foreign key binds 2 fields of 2 different tables together
+-> create Foreign Key only when :
+- target table exist and is empty
+- target field exists
+- origin table & field exist
+- origin field must be a primary key
+- origin and target field have the same type
+
+-> When create a record:
+if constrain origin: -
+if constrain target: check that value KeyValue exist within origin table
+
+-> When updating a record
+if constrain target: check value is a KeyValue from origin
+if constrain origin, then can't update
+
+-> when delete a record in a table:
+IF isConstrain = true: deleting record will also delete all reference to it in other tables
+IF hasConstrain = true: can delete record

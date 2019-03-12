@@ -4,7 +4,7 @@ import java.util.Arrays;
 public class Type {
 
     private String type;
-    private ArrayList<String> AllowedTypes = new ArrayList<> (Arrays.asList ("String", "Integer", "Float", "Double", "Boolean"));
+    private ArrayList<String> AllowedTypes = new ArrayList<> (Arrays.asList ("String", "Integer", "Boolean"));
 
 
     Type (String type) {

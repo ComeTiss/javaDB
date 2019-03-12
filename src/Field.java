@@ -3,7 +3,7 @@ public class Field {
     private Type type = null;
     private String name;
     private Boolean primaryKey=false;
-    private Field ForeignKey=null;
+
 
     Field (String name) {
         this.name = name;
@@ -20,11 +20,6 @@ public class Field {
         this.primaryKey = true;
     }
 
-    void setForeignKey (Field field) {
-        this.ForeignKey = field;
-    }
-
-
     Type getType() {
         return this.type;
     }
@@ -37,7 +32,4 @@ public class Field {
         return this.primaryKey;
     }
 
-    Field getForeignKey() {
-        return this.ForeignKey;
-    }
 }

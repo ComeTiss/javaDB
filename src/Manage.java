@@ -34,10 +34,15 @@ public class Manage {
         table1.update(3, "Owner", "bn56123");
         table1.update(3, "Member", false);
 
-        table1.save ("src/data.txt");
 
         Table table2 = new Table ("table 2");
         table2.write ("src/data.txt");
+
+        table2.create (4);
+        table2.update(4, "Name", "Nelson");
+        table2.update(4, "Kind", "fish");
+        table2.update(4, "Owner", "to12768");
+        table2.update(4, "Member", true);
         table2.show ();
 
         Table t = table1.filterByValue ("Kind", "dog").filterByField ("Name", "Owner");
@@ -46,5 +51,19 @@ public class Manage {
         t.update("Bobby","Price", "300$");
         t.update("Tom","Price", "150$");
         t.show ();
+
+
+        Table newT = new Table ("table 3");
+        newT.getFields ().set("Field 1", "field 2", "field 3");
+        newT.getFields ().setType ("Field 1", "Integer");
+        newT.getFields ().setType ("Field 2", "Integer");
+        newT.getFields ().setType ("Field 3", "Integer");
+        newT.getFields ().setKey ("Field 1");
+
+
+        Table test = new Table ("test");
+        test.write ("src/test.txt");
+        test.show ();
+        System.out.println (test.getFields ().getKey ());
     }
 }
