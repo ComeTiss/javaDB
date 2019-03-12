@@ -1,0 +1,95 @@
+Stages of development:
+
+1. Just a Record class
+----------------------
+Very simple at this stage, only contained an ArrayList of values
+Values don't have any time and are all considered as String so far
+Decided not to include any field directly as it was gonna be added straight after to the Table class
+
+
+2. Added a Table class
+---------------------
+> Fields
+collection of fields stored as an ArrayList of String
+can be set/reset/deleted
+
+> Records
+- collection of Objects stored as an ArrayList of Record
+- delete a Record by row index
+- to create a Record, pass directly a list of values
+- check that list of values size matches the field list one
+
+Problem:
+- we can't ensure that the data entered is going in the cell with the field that we are expecting
+- Allow user to enter more data than the record can contain
+
+> Queries:
+    - record: by index - returns a record object
+    - entry: by index and field - return a value
+
+
+Problem: if the index of a certain Record changes for some reason, it will be hard to retrieve its data again
+
+> Display methods added to show fields and records, with column alignment and line separation between fields and records
+
+3. Changed Record creation
+---------------------------
+
+> To solve the problem of [unknown field for a value], a constructor was added to Record method to initialise cells
+> In Table class, createRecord takes now (field, value) as parameters
+> all the other cells of the record will remain initialised
+> update method added to Table, so that the other cells can be filled with values
+
+> alter function enable to add a new field to an existing table
+A new cell is also initialised on each row
+
+4. Create a Field class
+------------------------
+
+> Made sense to gather methods and variables related to fields within it own class
+> a Field object was created instead within the Table class
+
+
+5. Change & Extend query methods on Table
+------------------------------------------
+
+> now 2 types: select & filters:
+    - filters: return a new Table
+    - select: return raw data (single value, or list of values)
+
+> added Delete Column method
+
+6. File I/O class
+-------------------
+
+> read data from a file and put it into a new Table object
+> check that this data is valid (records size respect fields size)
+
+> write table content into a new file using ',' as a separator between values
+> added methods 'save' and 'write' to Table class for easy usage
+
+
+7. Primary Key constrain
+--------------------------
+
+> A Key must be a field - therefore it was implemented within field class
+> changed querying method - instead of using index, now using KeyValue to update/delete a record
+> create a record now by specifying the Key value only (key field automatically chosen)
+> safety checks added to make sure a Table must have a primary key in order to create/update/delete
+
+
+8. Added Database Class
+-------------------------
+
+> contains a collection of Table objects
+> can save all the database tables with one method
+> classic methods to query/add/delete database content
+
+9. Data Type added
+a) created Type class
+b) modified Header class with an ArrayList of Types
+    + Can't redefine a field type once its been defined
+c) changed Table & Record class to take Objects as parameter instead of Strings
+    + methods added to check that data type is correct when creating/updating a cell
+    + make sure that all fields have a type to create a record
+d) changed Data class so that Data type is also saved in file

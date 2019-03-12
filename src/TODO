@@ -1,0 +1,10 @@
+
+
+QUERY METHOD
+-------------
+
+Table -> [query column(s)] -> output filtered Table
+Filtered Table -> [query by values] -> output another filtered table
+Refined Table -> [query 1 column values] -> output list of values
+Refined Table -> [query 1 cell, by column and row index] -> output value
+Refined Table -> [query 1 row, by row index] -> output dictionary, individual values can be extracted easily from that
