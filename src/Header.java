@@ -2,28 +2,31 @@ import java.util.ArrayList;
 
 public class Header {
 
-    private ArrayList<Type> types = new ArrayList<> ();
-    private ArrayList<String> fields;
-    private String primaryKey = null;
+    private ArrayList<Field> fields = new ArrayList<> ();
 
     /* ----------------------------------------------- */
 
     void setFromArray (ArrayList<String> fields) {
-        this.fields = fields;
+        this.fields = new ArrayList<> ();
+        for (String field : fields) {
+            this.fields.add (new Field (field));
+        }
     }
 
     void setTypesFromArray (ArrayList<String> types) {
-        for (String field : this.fields) {
-            setType (field, types.get (index (field)));
+        for (int i=0; i<types.size (); i++) {
+            this.fields.get (i).setType (new Type (types.get (i)) );
         }
     }
 
     void set(String... fields) {
         /* Allow user to set table field names */
         if (CanSetFields(fields)) {
-            this.fields = new ArrayList<> ();
+            if (count () > 0) {
+                this.fields = new ArrayList<> ();
+            }
             for (String field : fields) {
-                this.fields.add (count(), field);
+                this.fields.add (new Field (field));
             }
         }
     }
@@ -39,12 +42,15 @@ public class Header {
         }
         int index = index (oldField);
         this.fields.remove (index);
-        this.fields.add (index, newField);
+        this.fields.add (index, new Field (newField));
     }
 
     void setKey (String field) {
-        if (this.primaryKey == null && this.fields.contains (field)) {
-            this.primaryKey = field;
+        if (field == null) {
+            return;
+        }
+        if (! KeyDefined () && exists (field)) {
+            this.fields.get (index (field)).setIsKey ();
         }
         else {
             System.out.println ("Couldn't assign '"+field+"' as PRIMARY KEY");
@@ -62,22 +68,42 @@ public class Header {
 
         if ( exists (field) && FieldType.isValid (type)  && ! TypeDefined (field)) {
             int FieldIndex = index (field);
-            this.types.add (FieldIndex, FieldType);
+            this.fields.get (FieldIndex).setType (FieldType);
+        }
+    }
+
+    void bind (Field origin, Field target) {
+        /* assigns Foreign Key constrain to (target) ON (origin) */
+
+        if (exists (origin.getName ()) && exists (target.getName ())) {
+
         }
     }
 
     ArrayList<String> get () {
-        return this.fields;
+        /*
+            Returns all field names defined
+        */
+        ArrayList<String> fieldNames = new ArrayList<> ();
+        for (Field field : this.fields) {
+            fieldNames.add (field.getName ());
+        }
+        return fieldNames;
     }
 
     String getKey () {
-        return this.primaryKey;
+        if (KeyDefined ()) {
+            return this.fields.get (indexKey ()).getName ();
+        }
+        return null;
     }
 
     ArrayList <String> getAllTypes (){
         ArrayList<String> types = new ArrayList<> ();
-        for (Type type : this.types) {
-            types.add (type.get ());
+        for (Field field : fields) {
+            if (TypeDefined (field.getName ())) {
+                types.add (field.getType ().get ());
+            }
         }
         return types;
     }
@@ -85,7 +111,7 @@ public class Header {
     Type getType (String field) {
         if ( exists (field) ) {
             int FieldIndex = index (field);
-            return this.types.get (FieldIndex);
+            return this.fields.get (FieldIndex).getType ();
         }
         return null;
     }
@@ -104,17 +130,23 @@ public class Header {
     }
 
     int index(String field) {
-        return this.fields.indexOf(field);
+        return get ().indexOf (field);
     }
 
     int indexKey () {
-        return this.fields.indexOf (primaryKey);
+        int index=0;
+        for (Field field: this.fields) {
+            if (field.isKey ()) {
+                index = this.fields.indexOf (field);
+            }
+        }
+        return index;
     }
 
     void show() {
         separation();
         for (int i = 0; i < count(); i++) {
-            System.out.printf("%-13s  ", this.fields.get(i));
+            System.out.printf("%-13s  ", this.fields.get(i).getName ());
         }
         System.out.print("\n");
         separation();
@@ -133,37 +165,40 @@ public class Header {
         /*
             check that all fields have a type
         */
-        if (this.types.size () < count ()) {
-            return true;
+        for (Field f : this.fields) {
+            if (! TypeDefined (f.getName ())) {
+                return true;
+            }
         }
         return false;
     }
 
-    Boolean TypeDefined (String field) {
+    private Boolean TypeDefined (String field) {
         int FieldIndex = index (field);
-        try {
-            if (this.types.get (FieldIndex) != null) {
-                return true;
-            }
-        }
-        catch (Exception e) {
-            return false;
+
+        if (this.fields.get (FieldIndex).getType () != null) {
+            return true;
         }
         return false;
     }
 
     Boolean KeyDefined () {
-        if (this.primaryKey != null) {
-            return true;
+        for (Field field :  this.fields) {
+            if (field.isKey ()) {
+                return true;
+            }
         }
         return false;
     }
 
     Boolean exists(String field) {
-        if (!this.fields.contains(field)) {
-            return false;
+
+        for (Field f: this.fields) {
+            if (f.getName ().equals (field)) {
+                return true;
+            }
         }
-        return true;
+        return false;
     }
 
     private Boolean CanSetFields (String... fields) {
@@ -240,6 +275,7 @@ public class Header {
         Header fields = new Header();
         fields.set ("Field 1", "Field 2");
         fields.setKey ("Field 2");
+        System.out.println (fields.indexKey ());
         assert (fields.indexKey () == 1);
     }
 

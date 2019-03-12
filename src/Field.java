@@ -1,18 +1,19 @@
 public class Field {
 
-    private Type type;
+    private Type type = null;
     private String name;
     private Boolean primaryKey=false;
     private Field ForeignKey=null;
 
-    /* --------------------------- */
-
-    void setType (String type) {
-        this.type = new Type (type);
+    Field (String name) {
+        this.name = name;
     }
 
-    void setName (String name) {
-        this.name = name;
+
+    /* --------------------------- */
+
+    void setType (Type type) {
+        this.type = type;
     }
 
     void setIsKey () {

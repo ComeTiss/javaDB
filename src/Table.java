@@ -66,8 +66,12 @@ public class Table {
         if (this.fields.exists (field)) {
             return;
         }
-        this.fields.get().add (field);
+        ArrayList<String> newFields = this.fields.get ();
+        String Key = this.fields.getKey ();
+        newFields.add (field);
+        this.fields.setFromArray (newFields);
         this.fields.setType (field, type);
+        this.fields.setKey (Key);
 
         //extend current records size
         for (int i=0; i<count (); i++) {
@@ -117,12 +121,13 @@ public class Table {
             System.out.println ("Can't delete because of PRIMARY KEY constrain");
             return;
         }
-
-        int fieldIndex = this.fields.index (field);
-        for (int i=0; i<count (); i++) {
-            this.rows.get(i).delete (fieldIndex);
+        if (this.fields.exists (field)) {
+            int fieldIndex = this.fields.index (field);
+            for (int i=0; i<count (); i++) {
+                this.rows.get(i).delete (fieldIndex);
+            }
+            this.fields.delete (field);
         }
-        this.fields.delete (field);
     }
 
     /* ---------- QUERY METHODS ----------- */
@@ -274,9 +279,12 @@ public class Table {
             Check all rows for a KeyValue,
             return true if this value exists
         */
+
         if ( this.fields.KeyDefined () ) {
+
             int index = this.fields.indexKey ();
             for (Record r : this.rows) {
+
                 if (r.select (index).equals (KeyValue)) {
                     return true;
                 }
