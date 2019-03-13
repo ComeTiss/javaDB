@@ -72,14 +72,6 @@ public class Header {
         }
     }
 
-    void bind (Field origin, Field target) {
-        /* assigns Foreign Key constrain to (target) ON (origin) */
-
-        if (exists (origin.getName ()) && exists (target.getName ())) {
-
-        }
-    }
-
     ArrayList<String> get () {
         /*
             Returns all field names defined
@@ -109,6 +101,7 @@ public class Header {
     }
 
     Type getType (String field) {
+
         if ( exists (field) ) {
             int FieldIndex = index (field);
             return this.fields.get (FieldIndex).getType ();
@@ -121,12 +114,7 @@ public class Header {
     }
 
     int count () {
-        try {
-            return this.fields.size();
-        }
-        catch (Exception e) {
-            return 0;
-        }
+        return this.fields.size();
     }
 
     int index(String field) {
@@ -134,6 +122,9 @@ public class Header {
     }
 
     int indexKey () {
+        /*
+            Returns index of Primary Key within the Field ArrayList
+        */
         int index=0;
         for (Field field: this.fields) {
             if (field.isKey ()) {
@@ -144,6 +135,9 @@ public class Header {
     }
 
     void show() {
+        /*
+            Display all fields on the screen, with a top/bottom separation line
+        */
         separation();
         for (int i = 0; i < count(); i++) {
             System.out.printf("%-13s  ", this.fields.get(i).getName ());

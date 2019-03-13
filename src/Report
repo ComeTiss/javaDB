@@ -112,28 +112,3 @@ purpose: clean Header class and gather info about a field in one object
 > Filter out blank lines
 > remove spaces from tokens read
 >
-
-
-
-11. Foreign Key constrain
----------------------------
-
-Foreign key binds 2 fields of 2 different tables together
--> create Foreign Key only when :
-- target table exist and is empty
-- target field exists
-- origin table & field exist
-- origin field must be a primary key
-- origin and target field have the same type
-
--> When create a record:
-if constrain origin: -
-if constrain target: check that value KeyValue exist within origin table
-
--> When updating a record
-if constrain target: check value is a KeyValue from origin
-if constrain origin, then can't update
-
--> when delete a record in a table:
-IF isConstrain = true: deleting record will also delete all reference to it in other tables
-IF hasConstrain = true: can delete record

@@ -309,8 +309,9 @@ public class Table {
 
         if (output.isValid ()) {
             this.fields.setFromArray (output.getFields ());
-            this.rows = output.getData ();
+            this.rows = output.getRows ();
             this.fields.setTypesFromArray (output.getTypes ());
+
             if (this.fields.exists (output.getKey ())) {
                 this.fields.setKey (output.getKey ());
             }

@@ -8,13 +8,13 @@ public class Data {
         # read / write Table into given file
     */
 
-    private ArrayList<Record> data = new ArrayList<> ();
+    private ArrayList<Record> rows = new ArrayList<> ();
     private ArrayList<String> fields = new ArrayList<> ();
     private ArrayList<String> types = new ArrayList<> ();
     private String primaryKey = null;
 
-    ArrayList<Record> getData () {
-        return this.data;
+    ArrayList<Record> getRows () {
+        return this.rows;
     }
 
     ArrayList<String> getFields () {
@@ -37,11 +37,10 @@ public class Data {
           # each word separated by a ','
           # get rid of spaces within content between two ','
         */
-        String line;
-
         try {
             FileReader filereader = new FileReader (new File (removeSpaces(filename)));
             BufferedReader bufferedReader = new BufferedReader (filereader);
+            String line;
             int count = 0;
 
             while ((line = bufferedReader.readLine()) != null) {
@@ -49,28 +48,9 @@ public class Data {
 
                 if (! BlankLine (objects)) {
                     if (count > 2) {
-                        Record row = new Record (objects.length);
-                        this.data.add (row);
+                        this.rows.add (new Record (objects.length));
                     }
-
-                    // read a line word by word
-                    for (int i = 0; i < objects.length; i++) {
-
-                        if (count == 0) {
-                            this.fields.add (removeSpaces (objects[i].toString ()));
-                        }
-                        else if (count == 1) {
-                            this.types.add (removeSpaces (objects[i].toString ()));
-                        }
-                        else if (count == 2) {
-                            this.primaryKey = removeSpaces (objects[i].toString ());
-                        }
-                        else {
-                            if ( CorrectType (this.types.get (i), objects[i].toString ()) ) {
-                                this.data.get (count-3).update(i, objects[i]);
-                            }
-                        }
-                    }
+                    saveObjects (objects, count);
                     count++;
                 }
             }
@@ -81,6 +61,30 @@ public class Data {
         }
         catch (IOException e) {
             System.out.println ("Unable to read file content");
+        }
+    }
+
+    private void saveObjects (Object[] objects, int counter) {
+        for (int i = 0; i < objects.length; i++) {
+            if (counter == 0) {
+                this.fields.add (removeSpaces (objects[i].toString ()));
+            }
+            else if (counter == 1) {
+                this.types.add (removeSpaces (objects[i].toString ()));
+            }
+            else if (counter == 2) {
+                /* If multiple values are present on line,
+                   the last will be taken as the Table key
+                */
+                this.primaryKey = removeSpaces (objects[i].toString ());
+            }
+            else {
+                if (CorrectType (this.types.get (i), objects[i].toString ())) {
+                    /* Store value with the correct type */
+                    Object value = ReformatObj (this.types.get (i), removeSpaces(objects[i].toString ()));
+                    this.rows.get (counter - 3).update (i, value);
+                }
+            }
         }
     }
 
@@ -130,9 +134,7 @@ public class Data {
     }
 
     private Boolean findComma (Object word) {
-
         String StrWord = word.toString ();
-
         for (int i=0; i<StrWord.length (); i++) {
             if (StrWord.charAt(i) == ',') {
                 System.out.println ("Not allowed to use ',' within a value");
@@ -159,12 +161,10 @@ public class Data {
     }
 
     String convert (ArrayList<Object> List) {
-        /*
-           converts the Record list of values to a single String
+        /* converts the Record list of values to a single String
            Each value separated with a ','
            If any value contains a ',' already - conversion wont be possible
         */
-
         String line = new String ();
 
         for (int i=0; i < List.size (); i++) {
@@ -182,11 +182,15 @@ public class Data {
 
     Boolean isValid () {
         /*
-          check that all rows respect the table size
-          defined by the field array size
+          check that amount of types and each row width
+          respect the table size defined by the field array size
         */
         int fieldWidth = this.fields.size ();
-        for (Record row : this.data) {
+
+        if (types.size () > fieldWidth) {
+            return false;
+        }
+        for (Record row : this.rows) {
             if (row.width () > fieldWidth) {
                 return false;
             }
@@ -196,6 +200,9 @@ public class Data {
 
 
     private String findType (String input) {
+        /* check that each character of a given value
+           respects a certain format, so it respect the input type
+         */
         String value = removeSpaces (input);
         if (value.equals ("true") || value.equals ("false")) return "BooleanOrString";
         if (value.matches ("[0-9]+")) return "Integer";
@@ -204,7 +211,9 @@ public class Data {
     }
 
     Boolean CorrectType (String type, String value) {
-
+        /*  Check that a value type read from a file
+            matches its field type
+        */
         if (type.equals ("String")) {
             if (findType (value).equals ("BooleanOrString") ||
                     findType (value).equals ("String")) {
@@ -245,11 +254,11 @@ public class Data {
         Data test = new Data ();
         test.fields.add("Field 1");
         test.fields.add("Field 2");
-        test.data.add (new Record (4));
+        test.rows.add (new Record (4));
         assert (! test.isValid ());
 
-        test.data.remove (0);
-        test.data.add (new Record(2));
+        test.rows.remove (0);
+        test.rows.add (new Record(2));
         assert (test.isValid ());
     }
 

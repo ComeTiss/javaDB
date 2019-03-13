@@ -1,12 +1,8 @@
 
 
-
-
-
 Name, Age, Gender
 String, Integer, String
 Name
-Come, 23, M
-Joe, 25, M
-
-Nadya, 24, F
+Alan, 23, M
+Alan, 25, M
+Chloe, 24, F
