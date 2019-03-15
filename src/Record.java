@@ -2,7 +2,11 @@ import java.util.ArrayList;
 
 public class Record {
 
-    // Definitions
+    /*
+        A Record, or a 'row' contains a set of values; one for each column of the table
+    */
+
+
     private ArrayList<Object> values = new ArrayList<> ();
 
     // Constructor
@@ -44,10 +48,26 @@ public class Record {
     }
 
     void show() {
+        /*
+            Displays record on the screen
+        */
         for (int i = 0; i < width (); i++) {
             System.out.printf ("%-13s  ", select(i));
         }
         System.out.print ("\n");
     }
 
+    Boolean exists (int index, Object value) {
+        /*
+            Returns true, if the record contains the value at the given field index
+        */
+        if (value instanceof String) {
+            /* for string, remove spaces to compare */
+            value = value.toString ().replaceAll ("\\s", "");
+        }
+        if (select (index).equals (value)) {
+            return true;
+        }
+        return false;
+    }
 }

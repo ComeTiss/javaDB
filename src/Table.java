@@ -5,6 +5,15 @@ import java.util.Arrays;
 
 public class Table {
 
+    /*
+        A table contains a collection of Records and a Header
+        In order to write to the Table, the header must be fully defined, as well as the primary key
+
+        Common operations:
+        - create/update/delete/alter
+        - select/filters
+    */
+
     private String name;
     private ArrayList<Record> rows = new ArrayList<>();
     private Header fields = new Header();
@@ -20,7 +29,8 @@ public class Table {
     }
 
     void show() {
-        System.out.print("\n");
+        System.out.println ("\n###########");
+        System.out.println (this.name.toUpperCase ()+"\n");
         this.fields.show ();
         for (int i = 0; i < count (); i++) {
             this.rows.get(i).show();
@@ -66,10 +76,12 @@ public class Table {
         if (this.fields.exists (field)) {
             return;
         }
-        ArrayList<String> newFields = this.fields.get ();
-        String Key = this.fields.getKey ();
+
+        ArrayList<String> newFields = this.fields.get (); // copy current fields
         newFields.add (field);
-        this.fields.setFromArray (newFields);
+
+        String Key = this.fields.getKey (); // save current key
+        this.fields.setFromArray (newFields); //swap
         this.fields.setType (field, type);
         this.fields.setKey (Key);
 
@@ -93,13 +105,12 @@ public class Table {
     void update(Object KeyValue, String field, Object value) {
         /* update a cell in the table */
 
-        if (!this.fields.exists(field) || keyConstrain (field, value)) {
+        if (!this.fields.exists(field) || keyConstrain (field, value) ||
+            ! KeyValueExists (KeyValue) || ! DataTypeValid (field, value)){
             return;
         }
-        if (KeyValueExists (KeyValue) && DataTypeValid (field, value)) {
-            int index = this.fields.index(field);
-            this.rows.get(RowIndex (KeyValue)).update(index, value);
-        }
+        int index = this.fields.index(field);
+        this.rows.get(RowIndex (KeyValue)).update(index, value);
     }
 
     void deleteRecord(Object KeyValue) {
@@ -131,26 +142,32 @@ public class Table {
 
     /* ---------- QUERY METHODS ----------- */
 
-    ArrayList<Object> selectRow (Object KeyValue) {
-        String Key = this.fields.getKey ();
-        Table t = filterByValue (Key, KeyValue); // filtered table with 1 record only
-
-        if (t.count () != 1) {
-            System.out.println ("Invalid results obtained with the given KeyValue");
-            return null;
-        }
-        return t.getRecord (0).get ();
-    }
 
     Object selectOne (String field, Object KeyValue) {
-        if (! this.fields.exists (field)) {
+        if (! this.fields.exists (field) || ! KeyValueExists (KeyValue)) {
             return null;
         }
         int index = this.fields.index (field);
         return selectRow (KeyValue).get (index);
     }
 
+    ArrayList<Object> selectRow (Object KeyValue) {
+        String Key = this.fields.getKey ();
+        Table t = filterByValue (Key, KeyValue); // filtered table with 1 record only
+
+        if (t.count () != 1) {
+            System.out.println ("Invalid results obtained with the given key value");
+            return null;
+        }
+        return t.getRecord (0).get ();
+    }
+
     ArrayList<Object> selectColumn (String field) {
+
+        if (! this.fields.exists (field)) {
+            return null;
+        }
+
         ArrayList<Object> entries = new ArrayList<> ();
         for (int i=0; i<count (); i++) {
             entries.add (getEntry (field, i));
@@ -165,18 +182,21 @@ public class Table {
           Given a field name and a value
           returns all rows within table containing it
         */
+
         Table filteredData = new Table ("filter");
         filteredData.fields = this.fields;
 
-        for (String Field : this.fields.get ()) {
-            String type = this.fields.getType (Field).get ();
-            filteredData.getFields ().setType (Field, type);
-        }
+        if (filteredData.fields.exists (field)) {
+            for (String Field : this.fields.get ()) {
+                String type = this.fields.getType (Field).get ();
+                filteredData.getFields ().setType (Field, type);
+            }
 
-        int fieldIndex = this.fields.index (field);
-        for (Record row : this.rows) {
-            if (row.select (fieldIndex).equals (value)) {
-                filteredData.getRows ().add (row);
+            int fieldIndex = this.fields.index (field);
+            for (Record row : this.rows) {
+                if (row.exists (fieldIndex, value)) {
+                    filteredData.getRows ().add (row);
+                }
             }
         }
         return filteredData;
@@ -185,50 +205,45 @@ public class Table {
     Table filterByField (String ...fields) {
         /*
           Returns a new table with only the values for the fields given as argument
+          All the fields given must exist within the current table
         */
-
         Table filteredData = new Table ("filter");
         ArrayList<String> newFields = new ArrayList<> ();
-        ArrayList<String> unknownFields = new ArrayList<> ();
 
         // Initialize fields
         newFields.addAll (Arrays.asList (fields));
         filteredData.getFields ().setFromArray (newFields);
 
         // initialize types
-        for (String Field : newFields) {
-            String type = this.fields.getType (Field).get ();
-            filteredData.getFields ().setType (Field, type);
-        }
+        if (this.fields.existAll (fields)) {
+            for (String Field : newFields) {
+                String type = this.fields.getType (Field).get ();
+                filteredData.getFields ().setType (Field, type);
+            }
 
-        // Initialize rows
-        for (int i=0; i<count (); i++) {
-            Record newRow = new Record (newFields.size ());
-            filteredData.getRows ().add (newRow);
-        }
+            // Initialize rows
+            for (int i=0; i<count (); i++) {
+                Record newRow = new Record (newFields.size ());
+                filteredData.getRows ().add (newRow);
+            }
 
-        // populate new table with values
-        for (String field : newFields) {
-            if (this.fields.get ().contains (field)) {
+            // populate new table with values
+            for (String field : newFields) {
                 int fieldIndex = filteredData.getFields ().index (field);
-
                 for (int i=0; i<filteredData.count (); i++) {
                     Object value = getEntry (field, i);
                     filteredData.getRows ().get (i).update (fieldIndex, value);
                 }
             }
-            else {
-                unknownFields.add(field);
-            }
         }
-        newFields.removeAll (unknownFields);
-
         return filteredData;
     }
 
     /* ---------- Error Methods ------------ */
 
     private Boolean DataTypeValid (String field, Object value) {
+        /*  Returns true, if the value type matches the field type */
+
         if ( ! this.fields.exists (field) ) {
             return false;
         }
@@ -247,6 +262,9 @@ public class Table {
     }
 
     private Boolean CanCreate (Object KeyValue) {
+
+        /* all the checks must be passed so a new record can be created */
+
         if (this.fields.MissingType ()) {
             return false;
         }
@@ -300,13 +318,14 @@ public class Table {
 
     /* ------------ Write/save Table from File ------------ */
 
-    void write (String filename) {
+    void load (String filename) {
         /* Read content from given file
            & write into table
          */
         Data output = new Data ();
         output.read (filename);
 
+        // fill table with output data
         if (output.isValid ()) {
             this.fields.setFromArray (output.getFields ());
             this.rows = output.getRows ();
@@ -323,12 +342,16 @@ public class Table {
     }
 
     void save (String filename) {
+        /*
+            Write table content into a text file
+        */
         Data output = new Data ();
         output.write (this.fields, this.rows, filename);
     }
 
     /* ----------- TESTING ------------ */
 
+    /* The following 2 methods are used internally to make other functions shorter */
     private Record getRecord(int index) {
         if (!InBound (index)) {
             return null;

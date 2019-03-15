@@ -126,7 +126,9 @@ public class Data {
     }
 
 
-    Boolean BlankLine (Object[] line) {
+    private Boolean BlankLine (Object[] line) {
+        /* check that new line read from a file isn't a blank line
+        */
         if (line.length == 1 && line[0].equals ("")) {
             return true;
         }
@@ -134,6 +136,8 @@ public class Data {
     }
 
     private Boolean findComma (Object word) {
+        /* returns true if the parsed word contains a comma
+        */
         String StrWord = word.toString ();
         for (int i=0; i<StrWord.length (); i++) {
             if (StrWord.charAt(i) == ',') {
@@ -148,19 +152,22 @@ public class Data {
         return word.replaceAll("\\s+", "");
     }
 
-    Object ReformatObj (String type, Object value) {
+    private Object ReformatObj (String type, Object value) {
+        /* All Objects are read from a file as a String
+           # here they are reformatted to match their type
+         */
         if (type.equals ("Integer")) return Integer.parseInt (value.toString ());
         if (type.equals ("Boolean")) return Boolean.parseBoolean (value.toString ());
         else return value.toString ();
     }
 
-    ArrayList<Object> convertToObj (ArrayList<String> strings) {
+    private ArrayList<Object> convertToObj (ArrayList<String> strings) {
         ArrayList<Object> objects = new ArrayList<> ();
         objects.addAll (strings);
         return objects;
     }
 
-    String convert (ArrayList<Object> List) {
+    private String convert (ArrayList<Object> List) {
         /* converts the Record list of values to a single String
            Each value separated with a ','
            If any value contains a ',' already - conversion wont be possible
@@ -168,11 +175,9 @@ public class Data {
         String line = new String ();
 
         for (int i=0; i < List.size (); i++) {
-            if (findComma (List.get (i))) {
-                return null;
+            if (! findComma (List.get (i))) {
+                line += List.get (i) ;
             }
-            line += List.get (i) ;
-
             if (i < List.size () - 1) {
                 line += ", ";
             }

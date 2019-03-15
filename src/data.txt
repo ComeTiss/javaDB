@@ -1,6 +1,6 @@
 id, Name, Kind, Owner, Member
 Integer, String, String, String, Boolean
 id
-1, Bobby, dog, io18245, true
+1, , dog, io18245, true
 2, Tom, dog, fs34567, true
 3, Garfield, cat, bn56123, false

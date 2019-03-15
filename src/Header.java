@@ -2,6 +2,11 @@ import java.util.ArrayList;
 
 public class Header {
 
+    /*
+        To fully define a Header object, the field names as well as their types must be specified
+        Also, one of them must be chosen as the Table primary key
+    */
+
     private ArrayList<Field> fields = new ArrayList<> ();
 
     /* ----------------------------------------------- */
@@ -193,6 +198,15 @@ public class Header {
             }
         }
         return false;
+    }
+
+    Boolean existAll (String ...fields) {
+        for (String field : fields) {
+            if (! exists (field)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private Boolean CanSetFields (String... fields) {

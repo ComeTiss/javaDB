@@ -1,3 +1,4 @@
+import java.io.File;
 import java.util.ArrayList;
 
 public class Database {
@@ -48,13 +49,9 @@ public class Database {
         }
     }
 
-    void bind (Table origin, Field originField, Table target, Field targetField) {
-        /*
-
-         */
-    }
-
     void delete (String name) {
+        /* delete a table from the database */
+
         if (TableExists (name)) {
             this.db.remove (index (name));
         }
@@ -64,14 +61,21 @@ public class Database {
         /*
            Will create text file for each table of the database
            And save their content into it
+           All text files are saved within same folder
         */
+        String dbFolder = this.name;
+        if (! new File(dbFolder).mkdir()) {
+            System.out.println ("Folder exists already / Couldn't create folder: "+this.name+"\n");
+        }
         for (Table t : this.db) {
-            t.save (t.getName()+".txt");
+            String file = dbFolder+"/"+t.getName()+".txt";
+            t.save (file);
         }
     }
 
     void show () {
-        String msg = "\n-- Database --\n\n";
+        String msg = "\n###########\n";
+        msg += this.name.toUpperCase ()+"\n\n";
         for (Table t : this.db) {
             msg += "> " + t.getName () + "\n";
         }
@@ -79,9 +83,9 @@ public class Database {
         System.out.println (msg);
     }
 
-    int index (String name) {
+    private int index (String name) {
         /*
-           Return current index of a Table in Database ArrayList of Tables
+           Return current index of a Table in Database
         */
         int pos=0;
 
@@ -93,7 +97,7 @@ public class Database {
         return pos;
     }
 
-    Boolean TableExists (String name) {
+    private Boolean TableExists (String name) {
         /*
             check if database contains the given Table
         */
