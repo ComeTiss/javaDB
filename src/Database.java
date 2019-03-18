@@ -65,22 +65,18 @@ public class Database {
         */
         String dbFolder = this.name;
         if (! new File(dbFolder).mkdir()) {
-            System.out.println ("Folder exists already / Couldn't create folder: "+this.name+"\n");
+            Display display = new Display ();
+            display.ErrorCreatingDatabase (this.name);
         }
         for (Table t : this.db) {
-            String file = dbFolder+"/"+t.getName()+".txt";
+            String file = dbFolder + "/" + t.getName() + ".txt";
             t.save (file);
         }
     }
 
     void show () {
-        String msg = "\n###########\n";
-        msg += this.name.toUpperCase ()+"\n\n";
-        for (Table t : this.db) {
-            msg += "> " + t.getName () + "\n";
-        }
-        msg += "--------------\n";
-        System.out.println (msg);
+        Display display = new Display ();
+        display.ShowDatabase (this.name, this.db);
     }
 
     private int index (String name) {

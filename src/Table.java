@@ -29,13 +29,9 @@ public class Table {
     }
 
     void show() {
-        System.out.println ("\n###########");
-        System.out.println (this.name.toUpperCase ()+"\n");
-        this.fields.show ();
-        for (int i = 0; i < count (); i++) {
-            this.rows.get(i).show();
-        }
-        System.out.print("\n");
+
+        Display display = new Display ();
+        display.ShowTable (name, this.rows, this.fields);
     }
 
     String getName() {
@@ -128,7 +124,8 @@ public class Table {
         */
 
         if (field.equals (this.fields.getKey ())) {
-            System.out.println ("Can't delete because of PRIMARY KEY constrain");
+            Display display = new Display ();
+            display.ErrorKeyConstrain ();
             return;
         }
         if (this.fields.exists (field)) {
@@ -156,7 +153,8 @@ public class Table {
         Table t = filterByValue (Key, KeyValue); // filtered table with 1 record only
 
         if (t.count () != 1) {
-            System.out.println ("Invalid results obtained with the given key value");
+            Display display = new Display ();
+            display.ErrorKeyValue ();
             return null;
         }
         return t.getRecord (0).get ();
@@ -336,8 +334,8 @@ public class Table {
             }
         }
         else {
-
-            System.out.println ("\nInvalid data format, check table size.");
+            Display display = new Display ();
+            display.ErrorFileDataFormat ();
         }
     }
 

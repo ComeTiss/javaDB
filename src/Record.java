@@ -47,16 +47,6 @@ public class Record {
         return this.values.size ();
     }
 
-    void show() {
-        /*
-            Displays record on the screen
-        */
-        for (int i = 0; i < width (); i++) {
-            System.out.printf ("%-13s  ", select(i));
-        }
-        System.out.print ("\n");
-    }
-
     Boolean exists (int index, Object value) {
         /*
             Returns true, if the record contains the value at the given field index

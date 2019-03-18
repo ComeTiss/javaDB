@@ -42,7 +42,8 @@ public class Header {
         - new field name is an existing field
         */
         if (! exists (oldField) || exists (newField)) {
-            System.out.println ("Incorrect fields input");
+            Display display = new Display ();
+            display.ErrorFieldInput ();
             return;
         }
         int index = index (oldField);
@@ -58,7 +59,8 @@ public class Header {
             this.fields.get (index (field)).setIsKey ();
         }
         else {
-            System.out.println ("Couldn't assign '"+field+"' as PRIMARY KEY");
+            Display display = new Display ();
+            display.ErrorKeyDefinition (field);
         }
     }
 
@@ -137,26 +139,6 @@ public class Header {
             }
         }
         return index;
-    }
-
-    void show() {
-        /*
-            Display all fields on the screen, with a top/bottom separation line
-        */
-        separation();
-        for (int i = 0; i < count(); i++) {
-            System.out.printf("%-13s  ", this.fields.get(i).getName ());
-        }
-        System.out.print("\n");
-        separation();
-    }
-
-    private void separation() {
-        String message = new String ();
-        for (int i = 0; i < count(); i++) {
-            message += "--------------";
-        }
-        System.out.println(message);
     }
 
     /* ---------- Error Methods ------------ */
@@ -283,7 +265,6 @@ public class Header {
         Header fields = new Header();
         fields.set ("Field 1", "Field 2");
         fields.setKey ("Field 2");
-        System.out.println (fields.indexKey ());
         assert (fields.indexKey () == 1);
     }
 

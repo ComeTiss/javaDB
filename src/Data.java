@@ -57,10 +57,12 @@ public class Data {
             bufferedReader.close ();
         }
         catch (FileNotFoundException e) {
-            System.out.println ("Unable open file given: "+ filename);
+            Display display = new Display ();
+            display.ErrorOpeningFile (filename);
         }
         catch (IOException e) {
-            System.out.println ("Unable to read file content");
+            Display display = new Display ();
+            display.ErrorReadingFile (filename);
         }
     }
 
@@ -121,7 +123,8 @@ public class Data {
             writer.close ();
         }
         catch (IOException e) {
-            System.out.println ("Unable to write to file ");
+            Display display = new Display ();
+            display.ErrorWritingFile (filename);
         }
     }
 
@@ -141,7 +144,8 @@ public class Data {
         String StrWord = word.toString ();
         for (int i=0; i<StrWord.length (); i++) {
             if (StrWord.charAt(i) == ',') {
-                System.out.println ("Not allowed to use ',' within a value");
+                Display display = new Display ();
+                display.ErrorCommaSeparator ();
                 return true;
             }
         }

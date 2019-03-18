@@ -11,9 +11,8 @@ public class Manage {
        - a table can be saved
        - a database can be saved
 
-        A user interface couldn't be developed, however you can find some useful examples below
+        A user interface wasn't developed, however you can find some useful examples below:
      */
-
 
 
     public static void main (String[] args) {
@@ -33,7 +32,7 @@ public class Manage {
         table1.getFields ().setType ("Member", "Boolean");
         table1.getFields ().setKey ("id");
         table1.create(1);
-        table1.update(1, "Name", "Bobb,y");
+        table1.update(1, "Name", "Bobby");
         table1.update(1, "Kind", "dog");
         table1.update(1, "Owner", "io18245");
         table1.update(1, "Member", true);
@@ -71,7 +70,14 @@ public class Manage {
         /* Example 4: create a Database, populate it, and save it */
         Database db = new Database ("mydb");
         db.add (table1, table2, table3);
-        db.show ();
         db.save ();
+        db.show ();
+
+        /* Example 5: make queries on a table */
+        System.out.println ("\n-------- Example 5: Queries -------");
+        System.out.println (
+        "\nQuery a Column: " + table1.selectColumn ("Owner") +
+        "\nQuery a Value : " + table1.selectOne ("Kind", 2) +
+        "\nQuery a Record: " + table1.selectRow (1));
     }
 }
